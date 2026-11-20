@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BillBuddy — a fun, fast service fee and bill split calculator for South African Rand. Split smart. Tip happy." />
+  <title>BillBuddy · Split smart. Tip happy.</title>
+
+  <!-- ============================================================
+       SECTION 1: DESIGN TOKENS AND STYLES
+       All styling lives here. No external CSS files.
+       ============================================================ -->
+  <style>
+    /* ---------- Design tokens ---------- */
+    :root {
+      /* Brand colours: teal primary, amber accent */
+      --teal-900: #0b3d3a;
+      --teal-800: #0f4f4b;
+      --teal-700: #0f766e;
+      --teal-600: #0d9488;
+      --teal-500: #14b8a6;
+      --teal-100: #ccfbf1;
+      --teal-50:  #f0fdfa;
+
+      --amber-600: #d97706;
+      --amber-500: #f59e0b;
+      --amber-400: #fbbf24;
+      --amber-100: #fef3c7;
+
+      --green-700: #15803d;
+      --green-100: #dcfce7;
+
+      --ink-900: #11201f;
+      --ink-700: #33514e;
+      --ink-500: #5c7a77;
+
+      --surface: #ffffff;
+      --page-bg: #e7f6f4;
+
+      --danger-700: #b91c1c;
+      --danger-100: #fee2e2;
+
+      /* Shape and spacing */
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --shadow-card: 0 8px 24px rgba(11, 61, 58, 0.10);
+      --shadow-soft: 0 2px 8px rgba(11, 61, 58, 0.08);
+
+      /* Type: system fonts only */
+      --font-stack: system-ui, -apple-system, "Segoe UI", Roboto,
+                    Helvetica, Arial, sans-serif;
+    }
+
+    /* ---------- Base ---------- */
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-stack);
+      color: var(--ink-900);
+      background:
+        radial-gradient(1200px 500px at 85% -10%, rgba(20, 184, 166, 0.18), transparent 60%),
+        radial-gradient(900px 420px at -10% 10%, rgba(245, 158, 11, 0.14), transparent 55%),
+        var(--page-bg);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Layout column: comfy on phones, centred on desktop */
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 16px 48px;
+    }
+
+    /* ---------- Header / branding ---------- */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 4px 6px;
+    }
+
+    .brand-logo {
+      flex: 0 0 auto;
+      width: 56px;
+      height: 56px;
+      filter: drop-shadow(0 3px 6px rgba(11, 61, 58, 0.25));
+    }
+
+    .brand-name {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--teal-900);
+    }
+    .brand-name .buddy { color: var(--teal-600); }
+
+    .tagline {
+      margin: 2px 0 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink-700);
+    }
+    .tagline .happy { color: var(--amber-600); }
+
+    .intro {
+      margin: 14px 4px 22px;
+      color: var(--ink-700);
+      font-size: 0.98rem;
+      max-width: 56ch;
+    }
+
+    /* ---------- Cards ---------- */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 1.2rem;
+      color: var(--teal-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card .hint {
+      margin: 0 0 18px;
+      font-size: 0.9rem;
+      color: var(--ink-500);
+    }
+
+    /* ---------- Form ---------- */
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--teal-900);
+      margin-bottom: 6px;
+    }
+
+    .field .desc {
+      display: block;
+      font-weight: 400;
+      font-size: 0.82rem;
+      color: var(--ink-500);
+      margin-top: 2px;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"],
+    .field select {
+      width: 100%;
+      min-height: 48px; /* touch-friendly */
+      padding: 10px 14px;
+      font-size: 1.05rem;
+      font-family: inherit;
+      color: var(--ink-900);
+      background: var(--teal-50);
+      border: 2px solid var(--teal-100);
+      border-radius: var(--radius-md);
+    }
+
+    .field input:focus-visible,
+    .field select:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--amber-500);
+      outline-offset: 2px;
+    }
+
+    .field input:disabled,
+    .field select:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 420px) {
+      .field-row { grid-template-columns: 1fr; }
+    }
+
+    .prefix-input {
+      position: relative;
+    }
+    .prefix-input .prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-weight: 700;
+      color: var(--teal-600);
+      pointer-events: none;
+    }
+    .field .prefix-input input[type="text"] { padding-left: 38px; }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 12px 22px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: inherit;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal-600), var(--teal-700));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(13, 148, 136, 0.4);
+      width: 100%;
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(13, 148, 136, 0.5);
+    }
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn { transition: none; }
+      .btn-primary:hover:not(:disabled) { transform: none; }
+    }
+
+    /* ---------- Result preview ---------- */
+    .result-hero {
+      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .result-hero .label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--teal-100);
+      margin: 0 0 4px;
+    }
+
+    .result-hero .amount {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-hero .sub {
+      margin: 6px 0 0;
+      font-size: 0.95rem;
+      color: var(--teal-100);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-radius: 999px;
+      padding: 4px 12px;
+      margin-top: 10px;
+    }
+    .badge-exact { background: var(--green-100); color: var(--green-700); }
+    .badge-near  { background: #e2e8f0; color: #334155; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 420px) {
+      .result-grid { grid-template-columns: 1fr; }
+    }
+
+    .result-stat {
+      background: var(--teal-50);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+    .result-stat .k {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ink-500);
+    }
+    .result-stat .v {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--teal-900);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- Errors, settings, alternatives, people ---------- */
+    .field-error {
+      margin: 6px 0 0;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--danger-700);
+    }
+
+    .field input.invalid,
+    .field select.invalid {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .settings {
+      margin: 4px 0 18px;
+      border: 2px solid var(--teal-100);
+      border-radius: var(--radius-md);
+      background: var(--teal-50);
+    }
+    .settings summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--teal-800);
+      padding: 12px 16px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      border-radius: var(--radius-md);
+    }
+    .settings[open] summary { border-bottom: 2px solid var(--teal-100); }
+    .settings-body { padding: 14px 16px 4px; }
+    .settings-body .field input,
+    .settings-body .field select { background: #fff; }
+
+    .mode-group { border: 0; padding: 0; margin: 0 0 14px; }
+    .mode-group legend {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--teal-900);
+      padding: 0;
+      margin-bottom: 4px;
+    }
+    .mode-group label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .mode-group input[type="radio"] {
+      width: 22px; height: 22px;
+      accent-color: var(--teal-600);
+    }
+
+    .stale-banner {
+      background: var(--amber-100);
+      border: 1.5px solid var(--amber-500);
+      color: #92400e;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin: 0 0 14px;
+    }
+    .is-stale .result-hero,
+    .is-stale .result-grid,
+    .is-stale .alts,
+    .is-stale .people-list { opacity: 0.5; }
+
+    .card h3 {
+      margin: 22px 0 8px;
+      font-size: 1.02rem;
+      color: var(--teal-800);
+    }
+
+    .alts { display: grid; gap: 10px; }
+    .alt-card {
+      text-align: left;
+      width: 100%;
+      border: 2px solid var(--teal-100);
+      background: #fff;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 0.98rem;
+      cursor: pointer;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      align-items: center;
+      min-height: 48px;
+    }
+    .alt-card[aria-pressed="true"] {
+      border-color: var(--teal-600);
+      background: var(--teal-50);
+      box-shadow: var(--shadow-soft);
+    }
+    .alt-fee { font-weight: 800; color: var(--teal-800); }
+    .alt-reco {
+      color: var(--amber-600);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .alt-badge-exact { color: var(--green-700); font-weight: 700; font-size: 0.88rem; }
+    .alt-badge-near  { color: #475569; font-weight: 600; font-size: 0.88rem; }
+    .alt-sub { color: var(--ink-700); font-size: 0.9rem; width: 100%; }
+
+    .people-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .person-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--teal-50);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      min-width: 0;
+    }
+    .person-row input {
+      flex: 1 1 0%;
+      width: 0;
+      min-width: 0;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 2px solid var(--teal-100);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      background: #fff;
+    }
+    .person-amount {
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--teal-900);
+      white-space: nowrap;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--teal-800);
+      border: 2px solid var(--teal-600);
+    }
+    .btn-secondary:hover { background: var(--teal-50); }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25d366, #1da851);
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(29, 168, 81, 0.35);
+    }
+    .btn-whatsapp:hover { transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--teal-700);
+      border: 2px solid var(--teal-100);
+      width: 100%;
+      margin-top: 10px;
+      font-size: 0.98rem;
+    }
+    .btn-ghost:hover { background: var(--teal-50); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn-whatsapp:hover { transform: none; }
+    }
+
+    .share-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .share-row .btn { flex: 1 1 160px; }
+
+    .share-notice {
+      margin: 10px 0 0;
+      min-height: 1.2em;
+      font-weight: 600;
+      color: var(--teal-800);
+    }
+
+    .share-fallback {
+      width: 100%;
+      margin-top: 10px;
+      border: 2px solid var(--amber-500);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: var(--amber-100);
+      color: var(--ink-900);
+      resize: vertical;
+    }
+
+    .person-copy {
+      flex: 0 0 auto;
+      min-width: 44px;
+      min-height: 44px;
+      border: 2px solid var(--teal-100);
+      background: #fff;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 1.05rem;
+    }
+    .person-copy:hover { background: var(--teal-50); }
+
+    .alt-base {
+      color: var(--teal-600);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .card-disabled { opacity: 0.55; }
+    .card-disabled summary { cursor: not-allowed; }
+
+    .soon-badge {
+      display: inline-flex;
+      align-items: center;
+      background: var(--amber-100);
+      color: var(--amber-600);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 10px;
+      margin-left: 8px;
+    }
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .history-item {
+      width: 100%;
+      text-align: left;
+      border: 2px solid var(--teal-100);
+      background: #fff;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px 10px;
+      min-height: 48px;
+    }
+    .history-item:hover { background: var(--teal-50); border-color: var(--teal-500); }
+    .history-main { font-weight: 700; color: var(--teal-900); }
+    .history-time { color: var(--ink-500); font-size: 0.82rem; width: 100%; }
+
+    /* ---------- Footer ---------- */
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--ink-500);
+      padding-top: 8px;
+    }
+    footer .heart { color: var(--amber-500); }
+  </style>
+</head>
+
+<body>
+  <!-- ============================================================
+       SECTION 2: SEMANTIC INTERFACE MARKUP
+       ============================================================ -->
+  <div class="wrap">
+
+    <header class="brand">
+      <!-- Inline SVG logo: receipt with a happy coin — no image files needed -->
+      <svg class="brand-logo" viewBox="0 0 64 64" role="img" aria-label="BillBuddy logo: a receipt with a smiling coin">
+        <!-- receipt -->
+        <path d="M14 6 h36 v46 l-6 -4 -6 4 -6 -4 -6 4 -6 -4 -6 4 Z"
+              fill="#f0fdfa" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+        <line x1="22" y1="18" x2="42" y2="18" stroke="#99f6e4" stroke-width="3" stroke-linecap="round"/>
+        <line x1="22" y1="26" x2="42" y2="26" stroke="#99f6e4" stroke-width="3" stroke-linecap="round"/>
+        <!-- smiling amber coin -->
+        <circle cx="40" cy="40" r="13" fill="#f59e0b" stroke="#d97706" stroke-width="2.5"/>
+        <circle cx="35.5" cy="37" r="1.8" fill="#7c2d12"/>
+        <circle cx="44.5" cy="37" r="1.8" fill="#7c2d12"/>
+        <path d="M35 43 q5 4.5 10 0" fill="none" stroke="#7c2d12" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 class="brand-name">Bill<span class="buddy">Buddy</span></h1>
+        <p class="tagline">Split smart. <span class="happy">Tip happy.</span></p>
+      </div>
+    </header>
+
+    <p class="intro">
+      Your friendly service-fee and bill-split calculator for South African Rand.
+      BillBuddy finds the tip percentage that makes everyone's share a nice round
+      number — no awkward 37-cent transfers.
+    </p>
+
+    <!-- Calculator card (preview placeholder — real logic arrives in Phase 3) -->
+    <main>
+      <section class="card" aria-labelledby="calc-heading">
+        <h2 id="calc-heading">Your bill</h2>
+        <p class="hint">Fill in the bill and who's sharing — BillBuddy finds the friendliest split.</p>
+
+        <form id="calc-form" novalidate>
+          <div class="field">
+            <label for="bill-amount">Bill amount
+              <span class="desc">The original bill in Rand, before the tip (R0.01 to R10,000).</span>
+            </label>
+            <div class="prefix-input">
+              <span class="prefix" aria-hidden="true">R</span>
+              <input id="bill-amount" type="text" inputmode="decimal" value="1500.00"
+                     autocomplete="off" aria-describedby="err-bill" />
+            </div>
+            <p class="field-error" id="err-bill" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="people">People sharing
+              <span class="desc">How many people are splitting the bill? (1 to 10)</span>
+            </label>
+            <input id="people" type="number" inputmode="numeric" min="1" max="10" step="1"
+                   value="5" aria-describedby="err-people" />
+            <p class="field-error" id="err-people" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="increment">Round each share to
+              <span class="desc">BillBuddy aims for shares that land on this amount.</span>
+            </label>
+            <select id="increment" aria-describedby="err-increment">
+              <option value="100">R1</option>
+              <option value="200">R2</option>
+              <option value="500" selected>R5</option>
+              <option value="1000">R10</option>
+            </select>
+            <p class="field-error" id="err-increment" hidden></p>
+          </div>
+
+          <details class="settings">
+            <summary id="settings-summary">Service fee settings · 10%–12%, automatic</summary>
+            <div class="settings-body">
+              <div class="field-row">
+                <div class="field">
+                  <label for="fee-min">Min fee %</label>
+                  <input id="fee-min" type="number" inputmode="decimal" min="0" max="30" step="0.01"
+                         value="10" aria-describedby="err-fee-min" />
+                  <p class="field-error" id="err-fee-min" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="fee-max">Max fee %</label>
+                  <input id="fee-max" type="number" inputmode="decimal" min="0" max="30" step="0.01"
+                         value="12" aria-describedby="err-fee-max" />
+                  <p class="field-error" id="err-fee-max" hidden></p>
+                </div>
+              </div>
+
+              <fieldset class="mode-group">
+                <legend>How should the fee be chosen?</legend>
+                <label>
+                  <input type="radio" name="fee-mode" value="auto" checked />
+                  Find the best fee for me (recommended)
+                </label>
+                <label>
+                  <input type="radio" name="fee-mode" value="manual" />
+                  I'll pick the fee myself
+                </label>
+              </fieldset>
+
+              <div class="field" id="manual-fee-field" hidden>
+                <label for="manual-fee">Manual fee %
+                  <span class="desc">Must stay between the minimum and maximum above.</span>
+                </label>
+                <input id="manual-fee" type="number" inputmode="decimal" min="0" max="30" step="0.01"
+                       value="10" aria-describedby="err-manual-fee" />
+                <p class="field-error" id="err-manual-fee" hidden></p>
+              </div>
+            </div>
+          </details>
+
+          <button type="submit" class="btn btn-primary">
+            ✨ Calculate the perfect split
+          </button>
+          <button type="button" class="btn btn-ghost" id="reset-btn">
+            ↺ Reset to defaults
+          </button>
+        </form>
+      </section>
+
+      <!-- Results card: hidden until the first calculation -->
+      <section class="card" id="results-card" aria-labelledby="results-heading" hidden>
+        <h2 id="results-heading">The perfect split</h2>
+        <p class="stale-banner" id="stale-banner" hidden>
+          ⚠️ Inputs changed — press Calculate to refresh these results.
+        </p>
+
+        <div class="result-hero">
+          <p class="label" id="hero-label">Each person pays</p>
+          <p class="amount" id="hero-amount"></p>
+          <p class="sub" id="hero-sub"></p>
+          <span class="badge" id="hero-badge"></span>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-stat">
+            <span class="k">Original bill</span>
+            <span class="v" id="stat-bill"></span>
+          </div>
+          <div class="result-stat">
+            <span class="k" id="stat-fee-label">Service fee</span>
+            <span class="v" id="stat-fee"></span>
+          </div>
+          <div class="result-stat">
+            <span class="k">Total with tip</span>
+            <span class="v" id="stat-total"></span>
+          </div>
+          <div class="result-stat">
+            <span class="k" id="stat-target-label">Nearest target</span>
+            <span class="v" id="stat-target"></span>
+            <span class="k" id="stat-target-note"></span>
+          </div>
+        </div>
+
+        <section aria-labelledby="alts-heading" id="alts-section">
+          <h3 id="alts-heading">Compare options</h3>
+          <p class="hint" id="alts-note" hidden></p>
+          <div id="alts-list" class="alts" role="group" aria-label="Selectable fee options"></div>
+        </section>
+
+        <section aria-labelledby="people-heading">
+          <h3 id="people-heading">Who pays what</h3>
+          <p class="hint" id="split-note"></p>
+          <ol id="people-list" class="people-list"></ol>
+        </section>
+
+        <section aria-labelledby="share-heading">
+          <h3 id="share-heading">Share this split</h3>
+          <div class="share-row">
+            <button type="button" id="copy-btn" class="btn btn-secondary">📋 Copy text</button>
+            <a id="wa-btn" class="btn btn-whatsapp" href="#" target="_blank"
+               rel="noopener noreferrer">💬 Share on WhatsApp</a>
+          </div>
+          <p class="share-notice" id="share-notice" role="status"></p>
+          <label class="visually-hidden" for="share-fallback">Share text for manual copying</label>
+          <textarea id="share-fallback" class="share-fallback" rows="7" readonly hidden></textarea>
+        </section>
+      </section>
+
+      <!-- History card: temporarily disabled (greyed out), code kept for later -->
+      <section class="card card-disabled" aria-label="Calculation history (coming soon)">
+        <details class="settings" id="history-details">
+          <summary aria-disabled="true">🕘 Calculation history<span class="soon-badge">coming soon</span></summary>
+          <div class="settings-body">
+            <p class="hint" id="history-note">
+              Your last 20 calculations, newest first — saved only on this device.
+            </p>
+            <p class="field-error" id="storage-notice" hidden></p>
+            <ol id="history-list" class="history-list"></ol>
+            <button type="button" class="btn btn-ghost" id="clear-history-btn" hidden>
+              🗑 Clear history
+            </button>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <p class="visually-hidden" id="announcer" aria-live="polite"></p>
+
+    <footer>
+      <p>BillBuddy <span class="heart">♥</span> everything runs right here in your browser — no sign-ups, no servers, no tracking.</p>
+    </footer>
+  </div>
+
+  <!-- ============================================================
+       SECTION 3a: PURE MONEY, VALIDATION, OPTIMISATION AND
+       SPLITTING FUNCTIONS (no DOM access — testable in isolation).
+       The dev test suite extracts and runs this exact script, so
+       the page and the tests always share one implementation.
+       Later phases add:
+       3b. Storage and sharing helpers
+       3c. DOM rendering and event handling
+       ============================================================ -->
+  <script id="billbuddy-core">
+    "use strict";
+
+    globalThis.BillBuddyCore = (function () {
+
+      /* ------------------------------------------------------------
+         Supported limits (user-approved):
+         - Bill: R0.01 to R10,000.00  (1 to 1,000,000 cents)
+         - People: 1 to 10
+         - Service fee: 0.00% to 30.00%, in 0.01% steps
+         All money is integer cents; all percentages are integer
+         basis points (10.25% = 1025 bp). Worst-case intermediate:
+         1,000,000 cents x 3,000 bp = 3e9, far below
+         Number.MAX_SAFE_INTEGER (~9e15), so plain integer arithmetic
+         is always exact. No floating point is used for money.
+         ------------------------------------------------------------ */
+      const LIMITS = Object.freeze({
+        MIN_BILL_CENTS: 1,
+        MAX_BILL_CENTS: 1000000,   // R10,000.00
+        MIN_PEOPLE: 1,
+        MAX_PEOPLE: 10,
+        MIN_FEE_BP: 0,
+        MAX_FEE_BP: 3000,          // 30.00%
+        PREFERRED_MIN_BP: 1000,    // preferred 10%-12% band
+        PREFERRED_MAX_BP: 1200
+      });
+
+      // Supported share increments, in cents: R1, R2, R5, R10.
+      const INCREMENTS_CENTS = Object.freeze([100, 200, 500, 1000]);
+
+      const MAX_ALTERNATIVES = 4;
+
+      /* ---------------- Parsing and validation ----------------
+         Parsers never clamp or repair input: invalid input returns
+         { ok: false, error } with a field-specific message.      */
+
+      function fail(error) { return { ok: false, error: error }; }
+
+      // Parse a Rand amount string into integer cents.
+      function parseMoney(raw) {
+        if (typeof raw !== "string") return fail("Enter a bill amount.");
+        // Tolerate an "R" prefix and thousands separators when typed.
+        const cleaned = raw.trim().replace(/^R\s*/i, "").replace(/[,\s]/g, "");
+        if (cleaned === "") return fail("Enter a bill amount.");
+        if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) {
+          return fail("Use a positive amount with up to 2 decimals, like 1500.50.");
+        }
+        const parts = cleaned.split(".");
+        if (parts[0].length > 9) return fail("BillBuddy supports bills up to R10,000.00.");
+        const cents = Number(parts[0]) * 100 +
+          Number(((parts[1] || "") + "00").slice(0, 2));
+        if (!Number.isSafeInteger(cents)) {
+          return fail("BillBuddy supports bills up to R10,000.00.");
+        }
+        if (cents < LIMITS.MIN_BILL_CENTS) return fail("The bill must be at least R0.01.");
+        if (cents > LIMITS.MAX_BILL_CENTS) return fail("BillBuddy supports bills up to R10,000.00.");
+        return { ok: true, cents: cents };
+      }
+
+      // Parse a percentage string into integer basis points.
+      function parsePercent(raw, label) {
+        const name = label || "fee percentage";
+        if (typeof raw !== "string") return fail("Enter a " + name + ".");
+        const cleaned = raw.trim().replace(/%$/, "").trim();
+        if (cleaned === "") return fail("Enter a " + name + ".");
+        if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) {
+          return fail("Use a percentage with up to 2 decimals, like 10.25.");
+        }
+        const parts = cleaned.split(".");
+        if (parts[0].length > 4) return fail("Fee percentages must be between 0% and 30%.");
+        const bp = Number(parts[0]) * 100 +
+          Number(((parts[1] || "") + "00").slice(0, 2));
+        if (bp < LIMITS.MIN_FEE_BP || bp > LIMITS.MAX_FEE_BP) {
+          return fail("Fee percentages must be between 0% and 30%.");
+        }
+        return { ok: true, bp: bp };
+      }
+
+      // Parse the number of people into a positive whole number.
+      function parsePeople(raw) {
+        if (typeof raw !== "string") return fail("Enter how many people are sharing.");
+        const cleaned = raw.trim();
+        if (cleaned === "") return fail("Enter how many people are sharing.");
+        if (!/^\d+$/.test(cleaned)) return fail("People must be a whole number, like 5.");
+        const people = Number(cleaned);
+        if (people < LIMITS.MIN_PEOPLE || people > LIMITS.MAX_PEOPLE) {
+          return fail("BillBuddy supports 1 to 10 people.");
+        }
+        return { ok: true, people: people };
+      }
+
+      /*
+        Validate a complete calculation request.
+        input: { bill, people, minFee, maxFee, incrementCents, mode, manualFee }
+        (bill/people/minFee/maxFee/manualFee are raw strings;
+         incrementCents is a number; mode is "auto" or "manual").
+        Returns { ok: true, values } or { ok: false, errors: { field: message } }.
+      */
+      function validateCalculationInput(input) {
+        const errors = {};
+        const values = {};
+
+        const bill = parseMoney(input.bill);
+        if (bill.ok) values.billCents = bill.cents; else errors.bill = bill.error;
+
+        const people = parsePeople(input.people);
+        if (people.ok) values.people = people.people; else errors.people = people.error;
+
+        const minFee = parsePercent(input.minFee, "minimum fee");
+        if (minFee.ok) values.minBp = minFee.bp; else errors.minFee = minFee.error;
+
+        const maxFee = parsePercent(input.maxFee, "maximum fee");
+        if (maxFee.ok) values.maxBp = maxFee.bp; else errors.maxFee = maxFee.error;
+
+        if (minFee.ok && maxFee.ok && minFee.bp > maxFee.bp) {
+          errors.minFee = "Minimum fee cannot exceed the maximum fee.";
+        }
+
+        if (INCREMENTS_CENTS.indexOf(input.incrementCents) === -1) {
+          errors.increment = "Choose a supported increment: R1, R2, R5 or R10.";
+        } else {
+          values.incrementCents = input.incrementCents;
+        }
+
+        if (input.mode !== "auto" && input.mode !== "manual") {
+          errors.mode = "Choose automatic or manual fee selection.";
+        } else {
+          values.mode = input.mode;
+        }
+
+        if (input.mode === "manual") {
+          const manual = parsePercent(input.manualFee, "manual fee");
+          if (!manual.ok) {
+            errors.manualFee = manual.error;
+          } else if (minFee.ok && maxFee.ok &&
+                     (manual.bp < minFee.bp || manual.bp > maxFee.bp)) {
+            errors.manualFee = "Manual fee must stay between the minimum and maximum.";
+          } else {
+            values.manualBp = manual.bp;
+          }
+        }
+
+        if (Object.keys(errors).length > 0) return { ok: false, errors: errors };
+        return { ok: true, values: values };
+      }
+
+      /* ---------------- Exact money arithmetic ---------------- */
+
+      // Service fee in cents, rounded ONCE to the nearest cent, half-up.
+      // billCents * feeBp is at most 3e9, so this is exact integer maths.
+      function serviceFeeCents(billCents, feeBp) {
+        return Math.floor((billCents * feeBp + 5000) / 10000);
+      }
+
+      /*
+        Find the nearest "nice" total: a multiple of people * incrementCents,
+        which guarantees EVERY individual payment is the same exact multiple
+        of the increment. Comparisons use whole-total cents, never divided
+        averages, so fractional-cent shares cannot fake an exact match.
+        Tie rule: when the total sits exactly halfway between two targets,
+        the HIGHER target wins (consistent with half-up rounding).
+      */
+      function nearestTargetInfo(totalCents, people, incrementCents) {
+        const unit = people * incrementCents;
+        const lowerK = Math.floor(totalCents / unit);
+        const lowerDist = totalCents - lowerK * unit;
+        const k = (lowerDist * 2 >= unit && lowerDist !== 0) ? lowerK + 1 : lowerK;
+        const targetTotalCents = k * unit;
+        const distanceTotalCents = Math.abs(totalCents - targetTotalCents);
+        return {
+          targetPerPersonCents: k * incrementCents,
+          targetTotalCents: targetTotalCents,
+          distanceTotalCents: distanceTotalCents,
+          exact: distanceTotalCents === 0
+        };
+      }
+
+      /*
+        Split a total into per-person shares in integer cents.
+        Everyone gets the whole-cent quotient; the first `remainder`
+        people each carry one extra cent. Shares always sum exactly
+        to the total and differ by at most one cent.
+      */
+      function splitCents(totalCents, people) {
+        const base = Math.floor(totalCents / people);
+        const remainder = totalCents % people;
+        const shares = [];
+        for (let i = 0; i < people; i++) {
+          shares.push(i < remainder ? base + 1 : base);
+        }
+        return shares;
+      }
+
+      // Build the full result for one candidate fee percentage.
+      function buildCandidate(billCents, people, incrementCents, feeBp) {
+        const feeCents = serviceFeeCents(billCents, feeBp);
+        const totalCents = billCents + feeCents;
+        const target = nearestTargetInfo(totalCents, people, incrementCents);
+        return {
+          feeBp: feeBp,
+          feeCents: feeCents,
+          billCents: billCents,
+          totalCents: totalCents,
+          people: people,
+          incrementCents: incrementCents,
+          shares: splitCents(totalCents, people),
+          inPreferredBand: feeBp >= LIMITS.PREFERRED_MIN_BP &&
+                           feeBp <= LIMITS.PREFERRED_MAX_BP,
+          targetPerPersonCents: target.targetPerPersonCents,
+          targetTotalCents: target.targetTotalCents,
+          distanceTotalCents: target.distanceTotalCents,
+          exact: target.exact
+        };
+      }
+
+      /* ---------------- Optimisation and ranking ----------------
+         Rank order (best first):
+         1. Exact matches before near matches.
+         2. Smaller whole-total distance from the nearest target.
+         3. Fees inside the preferred 10%-12% band.
+         4. Lower fee percentage.
+         The preferred band never overrides a better distance and the
+         search never leaves the user's configured min-max range.   */
+
+      function compareCandidates(a, b) {
+        if (a.exact !== b.exact) return a.exact ? -1 : 1;
+        if (a.distanceTotalCents !== b.distanceTotalCents) {
+          return a.distanceTotalCents - b.distanceTotalCents;
+        }
+        if (a.inPreferredBand !== b.inPreferredBand) {
+          return a.inPreferredBand ? -1 : 1;
+        }
+        return a.feeBp - b.feeBp;
+      }
+
+      /*
+        Search EVERY basis point in the inclusive [minBp, maxBp] range
+        (at most 3,001 candidates). Different percentages that produce
+        the same final total are collapsed, keeping only the
+        best-ranked representative of each distinct total.
+        Returns { recommended, alternatives } where alternatives holds
+        up to 4 further candidates with distinct totals (possibly empty).
+      */
+      function optimise(params) {
+        const bestByTotal = new Map();
+        for (let bp = params.minBp; bp <= params.maxBp; bp++) {
+          const candidate = buildCandidate(
+            params.billCents, params.people, params.incrementCents, bp);
+          const existing = bestByTotal.get(candidate.totalCents);
+          if (!existing || compareCandidates(candidate, existing) < 0) {
+            bestByTotal.set(candidate.totalCents, candidate);
+          }
+        }
+        const ranked = Array.from(bestByTotal.values()).sort(compareCandidates);
+        return {
+          recommended: ranked[0],
+          alternatives: ranked.slice(1, 1 + MAX_ALTERNATIVES)
+        };
+      }
+
+      // Manual mode uses the exact same money functions; the result is
+      // simply flagged as manually selected instead of optimised.
+      function manualCalculation(params) {
+        const candidate = buildCandidate(
+          params.billCents, params.people, params.incrementCents, params.manualBp);
+        candidate.manual = true;
+        return candidate;
+      }
+
+      /* ---------------- Display formatting ---------------- */
+
+      // Integer cents -> "R1,650.00". Pure string maths, no floats.
+      function formatRand(cents) {
+        const sign = cents < 0 ? "-" : "";
+        const abs = Math.abs(cents);
+        const rand = String(Math.floor(abs / 100))
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const c = String(abs % 100).padStart(2, "0");
+        return sign + "R" + rand + "." + c;
+      }
+
+      // Integer basis points -> "10%", "10.5%" or "10.25%".
+      function formatPercentBp(bp) {
+        const whole = Math.floor(bp / 100);
+        const frac = bp % 100;
+        if (frac === 0) return whole + "%";
+        if (frac % 10 === 0) return whole + "." + (frac / 10) + "%";
+        return whole + "." + String(frac).padStart(2, "0") + "%";
+      }
+
+      return {
+        LIMITS: LIMITS,
+        INCREMENTS_CENTS: INCREMENTS_CENTS,
+        MAX_ALTERNATIVES: MAX_ALTERNATIVES,
+        parseMoney: parseMoney,
+        parsePercent: parsePercent,
+        parsePeople: parsePeople,
+        validateCalculationInput: validateCalculationInput,
+        serviceFeeCents: serviceFeeCents,
+        nearestTargetInfo: nearestTargetInfo,
+        splitCents: splitCents,
+        buildCandidate: buildCandidate,
+        compareCandidates: compareCandidates,
+        optimise: optimise,
+        manualCalculation: manualCalculation,
+        formatRand: formatRand,
+        formatPercentBp: formatPercentBp
+      };
+    })();
+  </script>
+
+  <!-- ============================================================
+       SECTION 3c: DOM RENDERING AND EVENT HANDLING
+       (SECTION 3b, storage & sharing helpers, arrives in Phase 4.)
+       All user-entered text (names, inputs) is only ever written
+       with textContent / input values — never as HTML.
+       ============================================================ -->
+  <script>
+    "use strict";
+    (function () {
+      const core = window.BillBuddyCore;
+      const $ = (id) => document.getElementById(id);
+
+      const els = {
+        form: $("calc-form"),
+        bill: $("bill-amount"),
+        people: $("people"),
+        increment: $("increment"),
+        minFee: $("fee-min"),
+        maxFee: $("fee-max"),
+        manualFee: $("manual-fee"),
+        manualField: $("manual-fee-field"),
+        settingsSummary: $("settings-summary"),
+        results: $("results-card"),
+        staleBanner: $("stale-banner"),
+        heroLabel: $("hero-label"),
+        heroAmount: $("hero-amount"),
+        heroSub: $("hero-sub"),
+        heroBadge: $("hero-badge"),
+        statBill: $("stat-bill"),
+        statFee: $("stat-fee"),
+        statFeeLabel: $("stat-fee-label"),
+        statTotal: $("stat-total"),
+        statTarget: $("stat-target"),
+        statTargetLabel: $("stat-target-label"),
+        statTargetNote: $("stat-target-note"),
+        altsSection: $("alts-section"),
+        altsList: $("alts-list"),
+        altsNote: $("alts-note"),
+        peopleList: $("people-list"),
+        splitNote: $("split-note"),
+        announcer: $("announcer"),
+        resetBtn: $("reset-btn"),
+        copyBtn: $("copy-btn"),
+        waBtn: $("wa-btn"),
+        shareNotice: $("share-notice"),
+        shareFallback: $("share-fallback"),
+        historyList: $("history-list"),
+        historyNote: $("history-note"),
+        storageNotice: $("storage-notice"),
+        clearHistoryBtn: $("clear-history-btn"),
+        errors: {
+          bill: $("err-bill"),
+          people: $("err-people"),
+          minFee: $("err-fee-min"),
+          maxFee: $("err-fee-max"),
+          manualFee: $("err-manual-fee"),
+          increment: $("err-increment")
+        }
+      };
+
+      const errorInputs = {
+        bill: els.bill,
+        people: els.people,
+        minFee: els.minFee,
+        maxFee: els.maxFee,
+        manualFee: els.manualFee,
+        increment: els.increment
+      };
+
+      // UI state. Names are plain strings tied to person positions.
+      const state = {
+        candidates: [],
+        selected: 0,
+        names: [],
+        hasResult: false
+      };
+
+      // Documented reset defaults.
+      const DEFAULTS = {
+        bill: "1500.00",
+        people: "5",
+        minFee: "10",
+        maxFee: "12",
+        increment: "500",
+        manualFee: "10",
+        mode: "auto"
+      };
+
+      // History is temporarily disabled (greyed out in the UI).
+      // Flip to true to bring it back — all code paths are kept.
+      const HISTORY_ENABLED = false;
+
+      // The standard tip everyone knows; always shown in Compare options.
+      const BASELINE_BP = 1000;
+
+      /* ============================================================
+         SECTION 3b: STORAGE AND SHARING HELPERS
+         Storage can be unavailable (file:// quirks, private browsing)
+         or corrupted; every path fails soft with a visible notice and
+         the calculator keeps working without persistence.
+         ============================================================ */
+
+      const STORAGE_KEYS = {
+        settings: "billbuddy:settings",
+        history: "billbuddy:history"
+      };
+
+      const storageAvailable = (function () {
+        try {
+          const probe = "billbuddy:probe";
+          window.localStorage.setItem(probe, "1");
+          window.localStorage.removeItem(probe);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      })();
+
+      function storageGet(key) {
+        if (!storageAvailable) return null;
+        try {
+          const raw = window.localStorage.getItem(key);
+          return raw === null ? null : JSON.parse(raw);
+        } catch (e) {
+          return null; // corrupted JSON is treated as absent
+        }
+      }
+
+      function storageSet(key, value) {
+        if (!storageAvailable) return false;
+        try {
+          window.localStorage.setItem(key, JSON.stringify(value));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // ----- Preferred settings (fee range + increment) -----
+
+      function saveSettings() {
+        storageSet(STORAGE_KEYS.settings, {
+          minFee: els.minFee.value,
+          maxFee: els.maxFee.value,
+          increment: els.increment.value
+        });
+      }
+
+      function loadSettings() {
+        const saved = storageGet(STORAGE_KEYS.settings);
+        if (!saved || typeof saved !== "object") return;
+        // Only apply values that still validate; never trust storage blindly.
+        if (typeof saved.minFee === "string" && typeof saved.maxFee === "string") {
+          const min = core.parsePercent(saved.minFee);
+          const max = core.parsePercent(saved.maxFee);
+          if (min.ok && max.ok && min.bp <= max.bp) {
+            els.minFee.value = saved.minFee;
+            els.maxFee.value = saved.maxFee;
+          }
+        }
+        if (typeof saved.increment === "string" &&
+            core.INCREMENTS_CENTS.indexOf(Number(saved.increment)) !== -1) {
+          els.increment.value = saved.increment;
+        }
+      }
+
+      // ----- Calculation history (max 20, newest first) -----
+
+      function loadHistory() {
+        const raw = storageGet(STORAGE_KEYS.history);
+        if (!Array.isArray(raw)) return [];
+        // Keep only entries whose stored inputs still validate.
+        return raw.filter(function (entry) {
+          return entry && typeof entry === "object" &&
+            typeof entry.savedAt === "string" &&
+            entry.inputs && typeof entry.inputs === "object" &&
+            core.validateCalculationInput(entry.inputs).ok;
+        }).slice(0, 20);
+      }
+
+      function saveHistoryEntry(inputs) {
+        const entries = loadHistory();
+        // Skip exact duplicates of the newest entry (e.g. recalculating
+        // the same bill, or restoring from history).
+        if (entries.length > 0 &&
+            JSON.stringify(entries[0].inputs) === JSON.stringify(inputs)) {
+          return;
+        }
+        entries.unshift({ savedAt: new Date().toISOString(), inputs: inputs });
+        storageSet(STORAGE_KEYS.history, entries.slice(0, 20));
+      }
+
+      // ----- Share text -----
+
+      function personLabel(i) {
+        const name = (state.names[i] || "").trim();
+        return name !== "" ? name : "Person " + (i + 1);
+      }
+
+      function buildShareText(c) {
+        const lines = [];
+        lines.push("🧾 BillBuddy split");
+        lines.push("Bill: " + core.formatRand(c.billCents));
+        lines.push("Tip: " + core.formatPercentBp(c.feeBp) +
+          (c.manual ? " (picked manually)" : "") +
+          " = " + core.formatRand(c.feeCents));
+        lines.push("Total: " + core.formatRand(c.totalCents) +
+          " split " + c.people + (c.people === 1 ? " way" : " ways"));
+        const allEqual = c.shares[0] === c.shares[c.shares.length - 1];
+        if (allEqual) {
+          lines.push("Everyone pays " + core.formatRand(c.shares[0]) +
+            (c.exact ? " — exact " + incrementLabel(c.incrementCents) + " match 🎯" : ""));
+        } else {
+          lines.push("Shares differ by a cent:");
+          c.shares.forEach(function (share, i) {
+            lines.push("• " + personLabel(i) + ": " + core.formatRand(share));
+          });
+        }
+        lines.push("— Split smart. Tip happy.");
+        return lines.join("\n");
+      }
+
+      function whatsappHref(text) {
+        return "https://wa.me/?text=" + encodeURIComponent(text);
+      }
+
+      // ----- Clipboard with an honest failure path -----
+
+      function showShareNotice(message) {
+        els.shareNotice.textContent = message;
+        announce(message);
+      }
+
+      function hideShareFallback() {
+        els.shareFallback.hidden = true;
+        els.shareFallback.value = "";
+      }
+
+      function copyText(text, successMessage) {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          copyFallback(text);
+          return;
+        }
+        navigator.clipboard.writeText(text).then(function () {
+          hideShareFallback();
+          showShareNotice(successMessage);
+        }, function () {
+          copyFallback(text);
+        });
+      }
+
+      function copyFallback(text) {
+        els.shareFallback.value = text;
+        els.shareFallback.hidden = false;
+        els.shareFallback.focus();
+        els.shareFallback.select();
+        showShareNotice("Couldn't copy automatically in this browser. " +
+          "The text below is selected — press Ctrl+C (or long-press) to copy it.");
+      }
+
+      /* ---------------- Small helpers ---------------- */
+
+      function currentMode() {
+        const checked = document.querySelector("input[name='fee-mode']:checked");
+        return checked ? checked.value : "auto";
+      }
+
+      function incrementLabel(cents) { return "R" + (cents / 100); }
+
+      function announce(message) { els.announcer.textContent = message; }
+
+      function readInputs() {
+        return {
+          bill: els.bill.value,
+          people: els.people.value,
+          minFee: els.minFee.value,
+          maxFee: els.maxFee.value,
+          incrementCents: Number(els.increment.value),
+          mode: currentMode(),
+          manualFee: els.manualFee.value
+        };
+      }
+
+      function shareRangeText(shares) {
+        const max = shares[0];
+        const min = shares[shares.length - 1];
+        if (min === max) return core.formatRand(max) + " each";
+        return core.formatRand(min) + " – " + core.formatRand(max) + " each";
+      }
+
+      // Honest distance wording for near matches. The comparison itself
+      // is exact (whole cents on the whole total); only display divides.
+      function distanceText(c) {
+        if (c.distanceTotalCents === 0) return "spot on";
+        if (c.distanceTotalCents < c.people) {
+          return "off by less than R0.01 per person (" +
+            core.formatRand(c.distanceTotalCents) + " on the total)";
+        }
+        const approxPerPerson = Math.round(c.distanceTotalCents / c.people);
+        return "off by about " + core.formatRand(approxPerPerson) +
+          " per person (" + core.formatRand(c.distanceTotalCents) + " on the total)";
+      }
+
+      /* ---------------- Errors ---------------- */
+
+      function clearErrors() {
+        for (const key of Object.keys(els.errors)) {
+          els.errors[key].textContent = "";
+          els.errors[key].hidden = true;
+          const input = errorInputs[key];
+          input.classList.remove("invalid");
+          input.removeAttribute("aria-invalid");
+        }
+      }
+
+      function showErrors(errors) {
+        clearErrors();
+        for (const key of Object.keys(errors)) {
+          const errorEl = els.errors[key];
+          if (!errorEl) continue;
+          errorEl.textContent = errors[key];
+          errorEl.hidden = false;
+          const input = errorInputs[key];
+          input.classList.add("invalid");
+          input.setAttribute("aria-invalid", "true");
+        }
+        // Manual-fee problems live inside the collapsed settings panel.
+        if (errors.minFee || errors.maxFee || errors.manualFee) {
+          document.querySelector(".settings").open = true;
+        }
+      }
+
+      /* ---------------- Rendering ---------------- */
+
+      function renderBadge(c) {
+        els.heroBadge.className = "badge " + (c.exact ? "badge-exact" : "badge-near");
+        els.heroBadge.textContent = c.exact
+          ? "✔ Exact " + incrementLabel(c.incrementCents) + " match"
+          : "≈ Near match — " + distanceText(c);
+      }
+
+      function renderAlternatives() {
+        els.altsList.textContent = "";
+        const manual = state.candidates[0] && state.candidates[0].manual;
+
+        if (manual) {
+          els.altsNote.textContent =
+            "You picked this fee yourself. Switch to automatic mode to compare optimised options.";
+          els.altsNote.hidden = false;
+          return;
+        }
+        if (state.candidates.length === 1) {
+          els.altsNote.textContent =
+            "No distinct alternatives are available — every fee in your range lands on the same total.";
+          els.altsNote.hidden = false;
+          return;
+        }
+        els.altsNote.hidden = true;
+
+        state.candidates.forEach(function (c, idx) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "alt-card";
+          btn.setAttribute("aria-pressed", String(idx === state.selected));
+
+          const fee = document.createElement("span");
+          fee.className = "alt-fee";
+          fee.textContent = core.formatPercentBp(c.feeBp) + " fee";
+          btn.appendChild(fee);
+
+          if (idx === 0) {
+            const reco = document.createElement("span");
+            reco.className = "alt-reco";
+            reco.textContent = "★ Recommended";
+            btn.appendChild(reco);
+          }
+
+          if (c.baseline) {
+            const base = document.createElement("span");
+            base.className = "alt-base";
+            base.textContent = c.outsideRange
+              ? "Standard 10% · outside your range"
+              : "Standard 10%";
+            btn.appendChild(base);
+          }
+
+          const status = document.createElement("span");
+          status.className = c.exact ? "alt-badge-exact" : "alt-badge-near";
+          status.textContent = c.exact
+            ? "✔ exact " + incrementLabel(c.incrementCents)
+            : "≈ near match";
+          btn.appendChild(status);
+
+          const sub = document.createElement("span");
+          sub.className = "alt-sub";
+          sub.textContent = "Total " + core.formatRand(c.totalCents) +
+            " · " + shareRangeText(c.shares);
+          btn.appendChild(sub);
+
+          btn.addEventListener("click", function () {
+            state.selected = idx;
+            renderResults();
+            announce("Selected " + core.formatPercentBp(c.feeBp) + " fee. Total " +
+              core.formatRand(c.totalCents) + ", " + shareRangeText(c.shares) + ".");
+          });
+
+          els.altsList.appendChild(btn);
+        });
+      }
+
+      function renderPeople(c) {
+        els.peopleList.textContent = "";
+        const remainder = c.totalCents % c.people;
+        els.splitNote.textContent = remainder === 0
+          ? "Everyone pays exactly the same amount. Add names if you like."
+          : core.formatRand(c.totalCents) + " doesn't split to the cent, so the first " +
+            (remainder === 1 ? "person carries" : remainder + " people carry") +
+            " one extra cent. Add names if you like.";
+
+        c.shares.forEach(function (shareCents, i) {
+          const li = document.createElement("li");
+          li.className = "person-row";
+
+          const label = document.createElement("label");
+          label.className = "visually-hidden";
+          label.setAttribute("for", "person-name-" + i);
+          label.textContent = "Optional name for person " + (i + 1);
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.id = "person-name-" + i;
+          input.maxLength = 40;
+          input.placeholder = "Person " + (i + 1);
+          input.value = state.names[i] || "";
+          input.autocomplete = "off";
+          input.addEventListener("input", function () {
+            state.names[i] = input.value;
+            updateShareUI();
+          });
+
+          const copyBtn = document.createElement("button");
+          copyBtn.type = "button";
+          copyBtn.className = "person-copy";
+          copyBtn.textContent = "📋";
+          copyBtn.setAttribute("aria-label", "Copy payment for person " + (i + 1));
+          copyBtn.title = "Copy this payment";
+          copyBtn.addEventListener("click", function () {
+            copyText(personLabel(i) + " pays " + core.formatRand(shareCents) +
+              " (BillBuddy)", "Copied " + personLabel(i) + "'s payment.");
+          });
+
+          const amount = document.createElement("span");
+          amount.className = "person-amount";
+          amount.textContent = core.formatRand(shareCents);
+
+          li.appendChild(label);
+          li.appendChild(input);
+          li.appendChild(amount);
+          li.appendChild(copyBtn);
+          els.peopleList.appendChild(li);
+        });
+      }
+
+      function renderResults() {
+        const c = state.candidates[state.selected];
+        if (!c) return;
+
+        const maxShare = c.shares[0];
+        const minShare = c.shares[c.shares.length - 1];
+        els.heroLabel.textContent =
+          minShare === maxShare ? "Each person pays" : "Each person pays between";
+        els.heroAmount.textContent = minShare === maxShare
+          ? core.formatRand(maxShare)
+          : core.formatRand(minShare) + " – " + core.formatRand(maxShare);
+        els.heroSub.textContent =
+          c.people + (c.people === 1 ? " person" : " people") +
+          " · " + core.formatRand(c.totalCents) + " total";
+        renderBadge(c);
+
+        els.statBill.textContent = core.formatRand(c.billCents);
+        els.statFeeLabel.textContent =
+          c.manual ? "Service fee (manually selected)" : "Service fee (optimised)";
+        els.statFee.textContent =
+          core.formatPercentBp(c.feeBp) + " · " + core.formatRand(c.feeCents);
+        els.statTotal.textContent = core.formatRand(c.totalCents);
+        els.statTargetLabel.textContent =
+          "Nearest " + incrementLabel(c.incrementCents) + " target per person";
+        els.statTarget.textContent = core.formatRand(c.targetPerPersonCents);
+        els.statTargetNote.textContent =
+          c.exact ? "Spot on." : "Equal share is " + distanceText(c) + ".";
+
+        renderAlternatives();
+        renderPeople(c);
+        updateShareUI();
+        els.results.hidden = false;
+      }
+
+      // Keep the WhatsApp link and copy text in sync with the
+      // selected candidate and any typed names.
+      function updateShareUI() {
+        const c = state.candidates[state.selected];
+        if (!c) return;
+        els.waBtn.href = whatsappHref(buildShareText(c));
+      }
+
+      /* ---------------- History rendering ---------------- */
+
+      function renderHistory() {
+        els.historyList.textContent = "";
+        if (!storageAvailable) {
+          els.storageNotice.textContent = "Local storage isn't available here " +
+            "(this can happen in private browsing or when opening the file " +
+            "directly). Settings and history won't be saved, but the " +
+            "calculator works normally.";
+          els.storageNotice.hidden = false;
+          els.clearHistoryBtn.hidden = true;
+          return;
+        }
+        const entries = loadHistory();
+        els.clearHistoryBtn.hidden = entries.length === 0;
+        if (entries.length === 0) {
+          els.historyNote.textContent =
+            "Nothing saved yet — results land here each time you calculate.";
+          return;
+        }
+        els.historyNote.textContent =
+          "Your last " + entries.length + " calculation" +
+          (entries.length === 1 ? "" : "s") + ", newest first — tap one to restore it.";
+
+        entries.forEach(function (entry) {
+          const v = core.validateCalculationInput(entry.inputs);
+          if (!v.ok) return; // already filtered, belt and braces
+          const c = v.values.mode === "manual"
+            ? core.manualCalculation(v.values)
+            : core.optimise(v.values).recommended;
+
+          const li = document.createElement("li");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "history-item";
+
+          const main = document.createElement("span");
+          main.className = "history-main";
+          main.textContent = core.formatRand(c.billCents) + " · " +
+            c.people + (c.people === 1 ? " person" : " people") + " · " +
+            core.formatPercentBp(c.feeBp) + " → " + core.formatRand(c.totalCents);
+
+          const time = document.createElement("span");
+          time.className = "history-time";
+          const when = new Date(entry.savedAt);
+          time.textContent = isNaN(when.getTime()) ? "" : when.toLocaleString();
+
+          btn.appendChild(main);
+          btn.appendChild(time);
+          btn.addEventListener("click", function () { restoreEntry(entry); });
+          li.appendChild(btn);
+          els.historyList.appendChild(li);
+        });
+      }
+
+      function restoreEntry(entry) {
+        const inputs = entry.inputs;
+        els.bill.value = inputs.bill;
+        els.people.value = inputs.people;
+        els.minFee.value = inputs.minFee;
+        els.maxFee.value = inputs.maxFee;
+        els.increment.value = String(inputs.incrementCents);
+        els.manualFee.value = inputs.manualFee || DEFAULTS.manualFee;
+        for (const radio of document.querySelectorAll("input[name='fee-mode']")) {
+          radio.checked = radio.value === inputs.mode;
+        }
+        els.manualField.hidden = inputs.mode !== "manual";
+        updateSettingsSummary();
+        calculate();
+        announce("Restored calculation from history.");
+      }
+
+      /* ---------------- Reset ---------------- */
+
+      function resetCalculator() {
+        els.bill.value = DEFAULTS.bill;
+        els.people.value = DEFAULTS.people;
+        els.minFee.value = DEFAULTS.minFee;
+        els.maxFee.value = DEFAULTS.maxFee;
+        els.increment.value = DEFAULTS.increment;
+        els.manualFee.value = DEFAULTS.manualFee;
+        for (const radio of document.querySelectorAll("input[name='fee-mode']")) {
+          radio.checked = radio.value === DEFAULTS.mode;
+        }
+        els.manualField.hidden = true;
+        clearErrors();
+        state.candidates = [];
+        state.selected = 0;
+        state.names = [];
+        state.hasResult = false;
+        els.results.hidden = true;
+        els.staleBanner.hidden = true;
+        els.results.classList.remove("is-stale");
+        hideShareFallback();
+        els.shareNotice.textContent = "";
+        updateSettingsSummary();
+        announce("Calculator reset to the defaults: R1,500.00, 5 people, " +
+          "10% to 12% fee, R5 increment, automatic mode.");
+      }
+
+      /* ---------------- Stale marking ---------------- */
+
+      function markStale(stale) {
+        if (!state.hasResult) return;
+        els.staleBanner.hidden = !stale;
+        els.results.classList.toggle("is-stale", stale);
+      }
+
+      /* ---------------- Calculate ---------------- */
+
+      function calculate() {
+        const inputs = readInputs();
+        const validation = core.validateCalculationInput(inputs);
+        if (!validation.ok) {
+          showErrors(validation.errors);
+          markStale(true);
+          announce("Please fix the highlighted fields before calculating.");
+          return;
+        }
+        clearErrors();
+
+        const values = validation.values;
+        if (values.mode === "manual") {
+          state.candidates = [core.manualCalculation(values)];
+        } else {
+          const result = core.optimise(values);
+          state.candidates = [result.recommended].concat(result.alternatives);
+          // Always include the standard 10% tip for comparison. If it
+          // falls outside the user's fee range, it is clearly labelled
+          // as a baseline rather than an optimiser result.
+          if (!state.candidates.some(function (c) { return c.feeBp === BASELINE_BP; })) {
+            const baseline = core.buildCandidate(
+              values.billCents, values.people, values.incrementCents, BASELINE_BP);
+            baseline.baseline = true;
+            baseline.outsideRange =
+              BASELINE_BP < values.minBp || BASELINE_BP > values.maxBp;
+            state.candidates.push(baseline);
+          }
+        }
+        const firstResult = !state.hasResult;
+        state.selected = 0;
+        state.hasResult = true;
+        markStale(false);
+        renderResults();
+
+        // Explicit calculation action: persist preferences and history.
+        saveSettings();
+        if (HISTORY_ENABLED) {
+          saveHistoryEntry(inputs);
+          renderHistory();
+        }
+
+        const c = state.candidates[0];
+        announce("Calculated. " + core.formatPercentBp(c.feeBp) + " fee, total " +
+          core.formatRand(c.totalCents) + ", " + shareRangeText(c.shares) + ". " +
+          (c.exact ? "Exact " + incrementLabel(c.incrementCents) + " match." : "Near match."));
+
+        if (firstResult) {
+          const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          els.results.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+        }
+      }
+
+      /* ---------------- Events ---------------- */
+
+      els.form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        calculate();
+      });
+
+      function updateSettingsSummary() {
+        const mode = currentMode();
+        els.settingsSummary.textContent =
+          "Service fee settings · " + (els.minFee.value || "?") + "%–" +
+          (els.maxFee.value || "?") + "%, " +
+          (mode === "auto" ? "automatic" : "manual " + (els.manualFee.value || "?") + "%");
+      }
+
+      for (const input of [els.bill, els.people, els.minFee, els.maxFee, els.manualFee]) {
+        input.addEventListener("input", function () {
+          markStale(true);
+          updateSettingsSummary();
+        });
+      }
+      els.increment.addEventListener("change", function () { markStale(true); });
+
+      for (const radio of document.querySelectorAll("input[name='fee-mode']")) {
+        radio.addEventListener("change", function () {
+          els.manualField.hidden = currentMode() !== "manual";
+          markStale(true);
+          updateSettingsSummary();
+        });
+      }
+
+      els.resetBtn.addEventListener("click", resetCalculator);
+
+      els.copyBtn.addEventListener("click", function () {
+        const c = state.candidates[state.selected];
+        if (!c) return;
+        copyText(buildShareText(c), "Copied! Paste it into any chat.");
+      });
+
+      // Refresh the link at click time so it always reflects the
+      // latest selection and names (sharing is user-triggered only).
+      els.waBtn.addEventListener("click", function () {
+        updateShareUI();
+      });
+
+      els.clearHistoryBtn.addEventListener("click", function () {
+        if (!window.confirm("Clear all saved calculations? This cannot be undone.")) return;
+        storageSet(STORAGE_KEYS.history, []);
+        renderHistory();
+        announce("History cleared.");
+      });
+
+      loadSettings();
+      updateSettingsSummary();
+      if (HISTORY_ENABLED) {
+        renderHistory();
+      } else {
+        // History is greyed out for now: keep the panel closed.
+        $("history-details").addEventListener("click", function (e) {
+          e.preventDefault();
+        });
+      }
+      console.info("BillBuddy ready. Split smart. Tip happy.");
+    })();
+  </script>
+</body>
+</html>
